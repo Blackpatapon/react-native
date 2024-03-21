@@ -2,26 +2,35 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { FontAwesome, FontAwesome5, Entypo } from '@expo/vector-icons';
+import axios from 'axios';
 
-const LoginScreen = ({ navigation }) => {
+const RegisterScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
-    if (username.trim() !== '' && password.trim() !== '') {
-      await AsyncStorage.setItem('username', username);
-      await AsyncStorage.setItem('password', password);
-
-      navigation.navigate('Home');
+  const handleRegister = async () => {
+    if (username.trim() !== '' && email.trim() !== '' && password.trim() !== '') {
+      try {
+        await axios.post('http://172.20.40.56:3000/Register', {
+          username: username,
+          email: email,
+          password: password
+        });
+        // navigation.navigate('Home');
+      } catch (error) {
+        console.log(error);
+        Alert.alert('Error', 'Error al registrar el usuario. Por favor, inténtelo de nuevo.');
+      }
     } else {
-      Alert.alert('Error', 'Please enter both username and password.');
+      Alert.alert('Error', 'Por favor ingrese nombre de usuario, correo electrónico y contraseña.');
     }
   };
 
   return (
     <View style={styles.container}>
       <Image source={require('../assets/Steam_Logo.png')} style={styles.logo} />
-      <Text style={styles.title}>STEAM</Text>
+      <Text style={styles.title}>Create an Account</Text>
       <TextInput
         style={styles.input}
         placeholder="Username"
@@ -30,16 +39,22 @@ const LoginScreen = ({ navigation }) => {
       />
       <TextInput
         style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={(text) => setEmail(text)}
+      />
+      <TextInput
+        style={styles.input}
         placeholder="Password"
         secureTextEntry
         value={password}
         onChangeText={(text) => setPassword(text)}
       />
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
+      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+        <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.switchText}>Registrarse</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.switchText}>Iniciar sesión</Text>
       </TouchableOpacity>
     </View>
   );
@@ -70,7 +85,7 @@ const styles = StyleSheet.create({
     height: 150,
     marginBottom: 20,
   },
-  loginButton: {
+  registerButton: {
     backgroundColor: 'purple',
     paddingVertical: 15,
     paddingHorizontal: 30,
@@ -85,15 +100,6 @@ const styles = StyleSheet.create({
   controllerIcon: {
     marginTop: 20,
   },
-  socialIconsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '80%',
-    marginTop: 20,
-  },
-  socialIcon: {
-    marginHorizontal: 10,
-  },
   switchText: {
     color: 'white',
     marginTop: 20,
@@ -101,4 +107,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default RegisterScreen;
